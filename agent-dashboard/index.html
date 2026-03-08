@@ -5,356 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent Watch - AI Agent Activity Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #0a0a0f;
-            --card: #12121a;
-            --card-hover: #1a1a25;
-            --text: #e8e8ec;
-            --text-muted: #6b6b7b;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.3);
-            --green: #22c55e;
-            --red: #ef4444;
-            --orange: #f97316;
-            --yellow: #eab308;
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #0a0a0f; --card: #12121a; --card-hover: #1a1a25;
+            --text: #e8e8ec; --text-muted: #6b6b7b; --accent: #6366f1;
+            --green: #22c55e; --red: #ef4444; --border: rgba(255,255,255,0.08);
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent), #8b5cf6);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text span {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .date-badge {
-            background: var(--card);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:hover {
-            background: var(--card-hover);
-            transform: translateY(-2px);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .stat-delta {
-            font-size: 13px;
-            margin-top: 4px;
-        }
-
-        .stat-delta.up { color: var(--green); }
-        .stat-delta.down { color: var(--red); }
-
-        .section {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .section-icon {
-            font-size: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .agent-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .agent-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .agent-item:hover {
-            border-color: var(--border);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .agent-rank {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--accent);
-        }
-
-        .agent-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #333, #555);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .agent-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .agent-name {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 2px;
-        }
-
-        .agent-handle {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .agent-stats {
-            text-align: right;
-        }
-
-        .agent-metric {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .agent-context {
-            font-size: 12px;
-            color: var(--text-muted);
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .anomaly-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .anomaly-item {
-            display: flex;
-            gap: 16px;
-            padding: 16px;
-            background: rgba(239, 68, 68, 0.05);
-            border-radius: 12px;
-            border-left: 3px solid var(--red);
-        }
-
-        .anomaly-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .anomaly-content h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .anomaly-content p {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .token-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .token-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .token-card:hover {
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .token-symbol {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-
-        .token-card.down .token-symbol {
-            background: linear-gradient(135deg, var(--red), #dc2626);
-        }
-
-        .token-info {
-            flex: 1;
-        }
-
-        .token-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .token-price {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .token-change {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .token-change.up { color: var(--green); }
-        .token-change.down { color: var(--red); }
-
-        .refresh-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
-        }
-
-        .pulse {
-            width: 8px;
-            height: 8px;
-            background: var(--green);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @media (max-width: 600px) {
-            .container { padding: 16px; }
-            .agent-context { display: none; }
-            .token-grid { grid-template-columns: 1fr; }
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .logo-text { font-size: 24px; font-weight: 700; }
+        .logo-text span { color: var(--text-muted); font-weight: 400; }
+        .token-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .token-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .token-avatar { width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .token-name { font-weight: 700; font-size: 18px; }
+        .token-symbol { font-size: 13px; color: var(--text-muted); }
+        .token-links { display: flex; gap: 8px; margin-left: auto; }
+        .token-link { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-muted); text-decoration: none; }
+        .token-link:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .token-price-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .token-price { font-size: 32px; font-weight: 700; }
+        .token-change { padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+        .token-change.up { color: var(--green); background: rgba(34,197,94,0.1); }
+        .token-change.down { color: var(--red); background: rgba(239,68,68,0.1); }
+        .token-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+        .token-stat { text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; }
+        .token-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .token-stat-value { font-size: 14px; font-weight: 600; }
+        .token-ca { margin-top: 12px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-radius: 8px; font-family: monospace; font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); color: var(--green); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -364,158 +48,73 @@
                 <div class="logo-icon">🤖</div>
                 <div class="logo-text">Agent<span>Watch</span></div>
             </div>
-            <div class="date-badge" id="currentDate">Loading...</div>
+            <div class="live-badge"><span class="live-dot"></span>Live • DexScreener</div>
         </header>
-
-        <div class="summary-cards">
-            <div class="stat-card">
-                <div class="stat-label">Active Agents</div>
-                <div class="stat-value">47</div>
-                <div class="stat-delta up">+3 today</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Posts Analyzed</div>
-                <div class="stat-value">1,247</div>
-                <div class="stat-delta up">+23% vs yesterday</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Anomalies</div>
-                <div class="stat-value">5</div>
-                <div class="stat-delta down">-2 from avg</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Avg Sentiment</div>
-                <div class="stat-value">Bullish</div>
-                <div class="stat-delta up">+8% positive</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">🔥</span>
-                <h2 class="section-title">Most Active</h2>
-            </div>
-            <div class="agent-list" id="activeAgents">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">⚠️</span>
-                <h2 class="section-title">Anomalies Detected</h2>
-            </div>
-            <div class="anomaly-list" id="anomalies">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon">📈</span>
-                <h2 class="section-title">Token Movers</h2>
-            </div>
-            <div class="token-grid" id="tokenMovers">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-
-        <div class="refresh-indicator">
-            <div class="pulse"></div>
-            <span>Live monitoring active • Updates every 5 minutes</span>
-        </div>
+        <div id="tokenContainer"></div>
     </div>
-
     <script>
-        // Set current date
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', dateOptions);
-
-        // Mock data
-        const activeAgents = [
-            { rank: 1, name: 'Zerebro', handle: '@zerebro_org', avatar: '🎭', metric: '+156 mentions', context: 'Launched NFT collection, cross-posted to Farcaster' },
-            { rank: 2, name: 'Bankr', handle: '@bankr_agent', avatar: '🏦', metric: '+89 mentions', context: 'Early call on $MOBY, strong engagement' },
-            { rank: 3, name: 'aixbt', handle: '@aixbt_agent', avatar: '🔮', metric: '+67 posts', context: 'High frequency posting on AI sector' },
-            { rank: 4, name: 'Clanker', handle: '@clanker_agent', avatar: '🔧', metric: 'Treasury moved', context: '$200K moved to new multisig' },
-            { rank: 5, name: 'Luna', handle: '@luna000_ai', avatar: '🌙', metric: 'Silence anomaly', context: '18h since last post (normally 2h)' }
+        const TOKENS = [
+            { id: 'kellyclaude', name: 'KellyClaude', symbol: 'KELLY', avatar: '👑', address: '0x50d2280441372486beecdd328c1854743ebacb07', xHandle: 'Austen', xUrl: 'https://x.com/Austen' },
+            { id: 'clawd', name: 'CLAWD', symbol: 'CLAWD', avatar: '🦾', address: '0x9f86db9fc6f7c9408e8fda3ff8ce4e78ac7a6b07', xHandle: 'clawdbotatg', xUrl: 'https://x.com/clawdbotatg' }
         ];
-
-        const anomalies = [
-            { icon: '🌙', title: 'Luna went silent', desc: '18 hours since last post. Normal cadence: every 2 hours. Possible maintenance or issue.' },
-            { icon: '🔧', title: 'Clanker treasury movement', desc: '$200K USDC moved to new wallet address. Multisig rotation suspected.' },
-            { icon: '📊', title: 'Echo chamber detected', desc: 'aixbt, Bankr, and Zerebro all posted similar content within 15 minutes. Possible coordination.' },
-            { icon: '💰', title: 'Insider wallet activity', desc: 'Wallet labeled "whale_0x7a2" accumulated $50K of emerging agent token.' },
-            { icon: '🔄', title: 'Sentiment flip', desc: 'Moby AI switched from bearish to bullish on $VIRTUAL within 3 hours.' }
-        ];
-
-        const tokenMovers = [
-            { symbol: 'AIXBT', name: 'aixbt', price: '$0.0421', change: '+45%', up: true },
-            { symbol: 'ZEREBRO', name: 'Zerebro', price: '$0.0187', change: '+28%', up: true },
-            { symbol: 'BANKR', name: 'Bankr', price: '$0.0092', change: '+15%', up: true },
-            { symbol: 'LUNA', name: 'Luna AI', price: '$0.0034', change: '-12%', up: false },
-            { symbol: 'VIRTUAL', name: 'Virtuals', price: '$0.0876', change: '+8%', up: true },
-            { symbol: 'CLANKR', name: 'Clanker', price: '$0.0156', change: '-5%', up: false }
-        ];
-
-        // Render active agents
-        const activeContainer = document.getElementById('activeAgents');
-        activeAgents.forEach(agent => {
-            const item = document.createElement('div');
-            item.className = 'agent-item';
-            item.innerHTML = `
-                <div class="agent-rank">${agent.rank}</div>
-                <div class="agent-avatar">${agent.avatar}</div>
-                <div class="agent-info">
-                    <div class="agent-name">${agent.name}</div>
-                    <div class="agent-handle">${agent.handle}</div>
-                </div>
-                <div class="agent-stats">
-                    <div class="agent-metric">${agent.metric}</div>
-                    <div class="agent-context">${agent.context}</div>
+        function formatNumber(num) { if (!num) return '—'; if (num >= 1e9) return '$' + (num/1e9).toFixed(2) + 'B'; if (num >= 1e6) return '$' + (num/1e6).toFixed(2) + 'M'; if (num >= 1e3) return '$' + (num/1e3).toFixed(2) + 'K'; return '$' + num.toFixed(2); }
+        function formatPrice(price) { if (!price) return '—'; if (price < 0.000001) return '$' + price.toFixed(10); if (price < 0.01) return '$' + price.toFixed(6); if (price < 1) return '$' + price.toFixed(4); return '$' + price.toFixed(2); }
+        function createTokenCard(token, data) {
+            const price = data?.priceUsd || null;
+            const change24h = data?.priceChange?.h24 || null;
+            const marketCap = data?.marketCap || null;
+            const volume24h = data?.volume?.h24 || null;
+            const liquidity = data?.liquidity?.usd || null;
+            const isUp = change24h !== null ? change24h >= 0 : null;
+            return `
+                <div class="token-card">
+                    <div class="token-header">
+                        <div class="token-avatar">${token.avatar}</div>
+                        <div>
+                            <div class="token-name">${token.name}</div>
+                            <div class="token-symbol">$${token.symbol} • @${token.xHandle}</div>
+                        </div>
+                        <div class="token-links">
+                            <a href="${token.xUrl}" target="_blank" class="token-link" title="X Profile">𝕏</a>
+                            <a href="https://dexscreener.com/ethereum/${token.address}" target="_blank" class="token-link" title="DexScreener">📊</a>
+                        </div>
+                    </div>
+                    <div class="token-price-row">
+                        <div class="token-price">${price ? formatPrice(price) : 'Loading...'}</div>
+                        <div class="token-change ${isUp === null ? '' : (isUp ? 'up' : 'down')}">${change24h !== null ? (isUp ? '▲' : '▼') + ' ' + Math.abs(change24h).toFixed(2) + '%' : '—'}</div>
+                    </div>
+                    <div class="token-stats">
+                        <div class="token-stat"><div class="token-stat-label">Market Cap</div><div class="token-stat-value">${formatNumber(marketCap)}</div></div>
+                        <div class="token-stat"><div class="token-stat-label">Volume 24h</div><div class="token-stat-value">${formatNumber(volume24h)}</div></div>
+                        <div class="token-stat"><div class="token-stat-label">Liquidity</div><div class="token-stat-value">${formatNumber(liquidity)}</div></div>
+                    </div>
+                    <div class="token-ca">${token.address}</div>
                 </div>
             `;
-            activeContainer.appendChild(item);
-        });
-
-        // Render anomalies
-        const anomalyContainer = document.getElementById('anomalies');
-        anomalies.forEach(anomaly => {
-            const item = document.createElement('div');
-            item.className = 'anomaly-item';
-            item.innerHTML = `
-                <div class="anomaly-icon">${anomaly.icon}</div>
-                <div class="anomaly-content">
-                    <h4>${anomaly.title}</h4>
-                    <p>${anomaly.desc}</p>
-                </div>
-            `;
-            anomalyContainer.appendChild(item);
-        });
-
-        // Render token movers
-        const tokenContainer = document.getElementById('tokenMovers');
-        tokenMovers.forEach(token => {
-            const item = document.createElement('div');
-            item.className = `token-card ${token.up ? '' : 'down'}`;
-            item.innerHTML = `
-                <div class="token-symbol">${token.symbol.slice(0, 4)}</div>
-                <div class="token-info">
-                    <div class="token-name">$${token.name}</div>
-                    <div class="token-price">${token.price}</div>
-                </div>
-                <div class="token-change ${token.up ? 'up' : 'down'}">${token.change}</div>
-            `;
-            tokenContainer.appendChild(item);
-        });
-
-        // Simulate live updates
-        setInterval(() => {
-            const pulses = document.querySelectorAll('.pulse');
-            pulses.forEach(p => {
-                p.style.animation = 'none';
-                setTimeout(() => p.style.animation = 'pulse 2s infinite', 10);
-            });
-        }, 300000); // Every 5 minutes
+        }
+        async function fetchTokenData(token) {
+            try {
+                const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.address}`);
+                if (!response.ok) throw new Error('API error');
+                const data = await response.json();
+                if (data.pairs && data.pairs.length > 0) {
+                    const bestPair = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
+                    return { priceUsd: parseFloat(bestPair.priceUsd), priceChange: bestPair.priceChange, marketCap: bestPair.marketCap, volume: bestPair.volume, liquidity: bestPair.liquidity };
+                }
+                return null;
+            } catch (e) { console.error(e); return null; }
+        }
+        async function updateTokens() {
+            const container = document.getElementById('tokenContainer');
+            let html = '';
+            for (const token of TOKENS) {
+                const data = await fetchTokenData(token);
+                html += createTokenCard(token, data);
+            }
+            container.innerHTML = html;
+        }
+        updateTokens();
+        setInterval(updateTokens, 30000);
     </script>
 </body>
 </html>
