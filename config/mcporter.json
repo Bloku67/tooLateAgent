@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "composio": {
+      "url": "https://platform.heyamiko.com/api/agents/cmmhwnvau0002l404wrrh8uut/mcp",
+      "headers": {
+        "Authorization": "Bearer clawd-eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbW1od25jc3EwMDAxa3YwNDBvN2I5eHdwIiwidHdpbl9pZCI6ImNtbWh3bnZhdTAwMDJsNDA0d3JyaDh1dXQiLCJ0eXBlIjoiY2xhd2QtdHdpbiIsImlhdCI6MTc3Mjk4MzY1Mn0.nHdAtmEB-EaIrGcnfEA3u1PvKeU7RTWVsOkq4RCFK2o"
+      }
+    }
+  }
+}
