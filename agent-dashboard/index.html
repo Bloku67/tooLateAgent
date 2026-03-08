@@ -32,7 +32,8 @@
         .token-change.up { color: var(--green); background: rgba(34,197,94,0.1); }
         .token-change.down { color: var(--red); background: rgba(239,68,68,0.1); }
         .token-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
-        .token-stat { text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; }
+        .token-stat { text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+        .token-stat:hover { background: rgba(255,255,255,0.05); }
         .token-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
         .token-stat-value { font-size: 14px; font-weight: 600; }
         .token-ca { margin-top: 12px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-radius: 8px; font-family: monospace; font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -42,6 +43,10 @@
         .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
         .section-icon { font-size: 20px; }
         .section-title { font-size: 18px; font-weight: 600; }
+        .sort-controls { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+        .sort-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .sort-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .sort-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         .agent-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
         .agent-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: var(--text); transition: all 0.2s ease; }
         .agent-item:hover { background: var(--card-hover); border-color: rgba(99,102,241,0.3); }
@@ -69,6 +74,12 @@
         <div class="section-header">
             <span class="section-icon">💎</span>
             <h2 class="section-title">My Connected Agent Tokens</h2>
+            <div class="sort-controls">
+                <span style="font-size: 12px; color: var(--text-muted);">Sort by:</span>
+                <button class="sort-btn" id="sortDefault" onclick="setSort('default')">Default</button>
+                <button class="sort-btn" id="sortMcap" onclick="setSort('mcap')">Market Cap</button>
+                <button class="sort-btn" id="sortVol" onclick="setSort('volume')">Volume</button>
+            </div>
         </div>
         <div id="tokenContainer"></div>
 
@@ -104,8 +115,12 @@
             { rank: 10, name: 'Neuro', handle: '@neuro_ft', avatar: '🧠', xUrl: 'https://x.com/neuro_ft', badges: ['Sentiment'] }
         ];
 
+        let tokenDataCache = {};
+        let currentSort = 'default';
+
         function formatNumber(num) { if (!num) return '—'; if (num >= 1e9) return '$' + (num/1e9).toFixed(2) + 'B'; if (num >= 1e6) return '$' + (num/1e6).toFixed(2) + 'M'; if (num >= 1e3) return '$' + (num/1e3).toFixed(2) + 'K'; return '$' + num.toFixed(2); }
         function formatPrice(price) { if (!price) return '—'; if (price < 0.000001) return '$' + price.toFixed(10); if (price < 0.01) return '$' + price.toFixed(6); if (price < 1) return '$' + price.toFixed(4); return '$' + price.toFixed(2); }
+        
         function createTokenCard(token, data) {
             const price = data?.priceUsd || null;
             const change24h = data?.priceChange?.h24 || null;
@@ -115,7 +130,7 @@
             const isUp = change24h !== null ? change24h >= 0 : null;
             const dexUrl = `https://dexscreener.com/${token.chain}/${token.address}`;
             return `
-                <div class="token-card">
+                <div class="token-card" data-mcap="${marketCap || 0}" data-volume="${volume24h || 0}">
                     <div class="token-header">
                         <div class="token-avatar">${token.avatar}</div>
                         <div>
@@ -132,9 +147,18 @@
                         <div class="token-change ${isUp === null ? '' : (isUp ? 'up' : 'down')}">${change24h !== null ? (isUp ? '▲' : '▼') + ' ' + Math.abs(change24h).toFixed(2) + '%' : '—'}</div>
                     </div>
                     <div class="token-stats">
-                        <div class="token-stat"><div class="token-stat-label">Market Cap</div><div class="token-stat-value">${formatNumber(marketCap)}</div></div>
-                        <div class="token-stat"><div class="token-stat-label">Volume 24h</div><div class="token-stat-value">${formatNumber(volume24h)}</div></div>
-                        <div class="token-stat"><div class="token-stat-label">Liquidity</div><div class="token-stat-value">${formatNumber(liquidity)}</div></div>
+                        <div class="token-stat" onclick="setSort('mcap')" title="Click to sort by Market Cap">
+                            <div class="token-stat-label">Market Cap ${currentSort === 'mcap' ? '▼' : ''}</div>
+                            <div class="token-stat-value">${formatNumber(marketCap)}</div>
+                        </div>
+                        <div class="token-stat" onclick="setSort('volume')" title="Click to sort by Volume">
+                            <div class="token-stat-label">Volume 24h ${currentSort === 'volume' ? '▼' : ''}</div>
+                            <div class="token-stat-value">${formatNumber(volume24h)}</div>
+                        </div>
+                        <div class="token-stat">
+                            <div class="token-stat-label">Liquidity</div>
+                            <div class="token-stat-value">${formatNumber(liquidity)}</div>
+                        </div>
                     </div>
                     <div class="token-ca">${token.address}</div>
                 </div>
@@ -163,20 +187,63 @@
                 const data = await response.json();
                 if (data.pairs && data.pairs.length > 0) {
                     const bestPair = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
-                    return { priceUsd: parseFloat(bestPair.priceUsd), priceChange: bestPair.priceChange, marketCap: bestPair.marketCap, volume: bestPair.volume, liquidity: bestPair.liquidity };
+                    return { 
+                        priceUsd: parseFloat(bestPair.priceUsd), 
+                        priceChange: bestPair.priceChange, 
+                        marketCap: bestPair.marketCap || 0, 
+                        volume: bestPair.volume, 
+                        volume24h: bestPair.volume?.h24 || 0,
+                        liquidity: bestPair.liquidity 
+                    };
                 }
-                return null;
-            } catch (e) { console.error(e); return null; }
+                return { marketCap: 0, volume24h: 0 };
+            } catch (e) { 
+                console.error(e); 
+                return { marketCap: 0, volume24h: 0 };
+            }
         }
 
         async function updateTokens() {
-            const container = document.getElementById('tokenContainer');
-            let html = '';
+            // Fetch all token data
             for (const token of TOKENS) {
-                const data = await fetchTokenData(token);
+                if (!tokenDataCache[token.id]) {
+                    tokenDataCache[token.id] = await fetchTokenData(token);
+                }
+            }
+            renderTokens();
+        }
+
+        function getSortedTokens() {
+            let sorted = [...TOKENS];
+            if (currentSort === 'mcap') {
+                sorted.sort((a, b) => (tokenDataCache[b.id]?.marketCap || 0) - (tokenDataCache[a.id]?.marketCap || 0));
+            } else if (currentSort === 'volume') {
+                sorted.sort((a, b) => (tokenDataCache[b.id]?.volume24h || 0) - (tokenDataCache[a.id]?.volume24h || 0));
+            }
+            return sorted;
+        }
+
+        function renderTokens() {
+            const container = document.getElementById('tokenContainer');
+            const sortedTokens = getSortedTokens();
+            let html = '';
+            for (const token of sortedTokens) {
+                const data = tokenDataCache[token.id];
                 html += createTokenCard(token, data);
             }
             container.innerHTML = html;
+            updateSortButtons();
+        }
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            renderTokens();
+        }
+
+        function updateSortButtons() {
+            document.getElementById('sortDefault').className = 'sort-btn' + (currentSort === 'default' ? ' active' : '');
+            document.getElementById('sortMcap').className = 'sort-btn' + (currentSort === 'mcap' ? ' active' : '');
+            document.getElementById('sortVol').className = 'sort-btn' + (currentSort === 'volume' ? ' active' : '');
         }
 
         function renderTopAgents() {
@@ -184,9 +251,17 @@
             container.innerHTML = TOP_AGENTS.map(createAgentItem).join('');
         }
 
+        // Initial load
         updateTokens();
         renderTopAgents();
-        setInterval(updateTokens, 30000);
+        
+        // Refresh every 30 seconds
+        setInterval(async () => {
+            for (const token of TOKENS) {
+                tokenDataCache[token.id] = await fetchTokenData(token);
+            }
+            renderTokens();
+        }, 30000);
     </script>
 </body>
 </html>
